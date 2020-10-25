@@ -64,19 +64,28 @@ if __name__ == '__main__':
     layout = [
               [sg.Text('What to say'), sg.Multiline(size = [80,10])],
               [sg.Combo(values=voiceNames)],
-              [sg.Button('Ok'), sg.Button('Cancel')]]
+              [sg.Button('Convert'), sg.Button('Save'), sg.Button('Quit')]]
 
     # Create the Window
     window = sg.Window('Window Title', layout)
     # Event Loop to process "events" and get the "values" of the inputs
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
+        if event == sg.WIN_CLOSED or event == 'Quit':  # if user closes window or clicks cancel
             break
-        audio: bytearray = sayit(values[0],values[1])
-        audioSegment = AudioSegment.from_file(io.BytesIO(audio), format="mp3")
-        play(audioSegment)
-
+        if event == 'Convert':
+            audio: bytearray = sayit(values[0],values[1])
+            audioSegment = AudioSegment.from_file(io.BytesIO(audio), format="mp3")
+            play(audioSegment)
+        if event == 'Save':
+            fname = sg.popup_get_file('Please enter a file name to save the current audio')
+            filename, file_extension = os.path.splitext(fname)
+            if file_extension == "" :
+                fname +=".mp3"
+            with open(fname, "wb") as out:
+                # Write the response to the output file.
+                out.write(audio)
+                print('Audio content written to file '+fname)
     window.close()
 
 
